@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Цели | Планировщик бюджета</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- PWA метатеги -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4361ee">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Бюджет">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Мои финансовые цели</h1>
+            <p class="tagline">Планируйте и достигайте желаемого</p>
+        </div>
+    </header>
+    <nav>
+        <a href="page1.html">Главная</a>
+        <a href="stats.html">Статистика</a>
+        <a href="goals.html" class="active">Цели</a>
+        <a href="tips.html">Советы</a>
+		<a href="feedback.html">Обратная связь</a>
+    </nav>
+    <main>
+        <section class="goals-form-section">
+            <h2>Добавить новую цель</h2>
+            <form id="goalForm">
+                <input type="text" id="goalName" placeholder="Название цели" required>
+                <input type="number" id="goalAmount" placeholder="Сумма (руб)" required>
+                <input type="date" id="goalDate" required>
+                <input type="number" id="currentAmount" placeholder="Текущая сумма (руб)">
+                <button type="submit">Добавить цель</button>
+            </form>
+            <button id="resetGoals" class="reset-btn">Сбросить все цели</button>
+        </section>
+
+        <section class="goals-list-section">
+            <h2>Мои цели</h2>
+            <div id="goalsContainer">
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>© 2025 Планировщик бюджета/ Контакты 8(800)555-55-55</p>
+    </footer>
+
+    <script>
+        function getSavedGoals() {
+            const savedGoals = localStorage.getItem('financialGoals');
+            return savedGoals ? JSON.parse(savedGoals) : [];
+        }
+
+        function saveGoals(goals) {
+            localStorage.setItem('financialGoals', JSON.stringify(goals));
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}.${month}.${year}`;
+        }
+
+        function calculateProgress(current, target) {
+            return Math.min(Math.round((current / target) * 100), 100);
+        }
+
+        function renderGoals() {
+            const goals = getSavedGoals();
+            const container = document.getElementById('goalsContainer');
+            container.innerHTML = '';
+
+            if (goals.length === 0) {
+                container.innerHTML = '<p class="no-goals">У вас пока нет целей. Добавьте первую!</p>';
+                return;
+            }
+
+            goals.forEach((goal, index) => {
+                const progress = calculateProgress(goal.currentAmount || 0, goal.amount);
+                const goalElement = document.createElement('div');
+                goalElement.className = 'goal-card';
+                goalElement.innerHTML = `
+                    <div class="goal-header">
+                        <h3>${goal.name}</h3>
+                        <div class="goal-actions">
+                            <button class="edit-btn" data-id="${index}">✏️</button>
+                            <button class="delete-btn" data-id="${index}">🗑️</button>
+                        </div>
+                    </div>
+                    <p>Цель: <span class="amount">${goal.amount.toLocaleString()} ₽</span></p>
+                    <p>Накоплено: <span class="current-amount">${(goal.currentAmount || 0).toLocaleString()} ₽</span></p>
+                    <p>Срок: <span class="date">${goal.date}</span></p>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width: ${progress}%">
+                            <span class="progress-text">${progress}%</span>
+                        </div>
+                    </div>
+                    <div class="add-funds">
+                        <input type="number" class="add-amount" placeholder="Добавить сумму">
+                        <button class="add-btn" data-id="${index}">+</button>
+                    </div>
+                `;
+                container.appendChild(goalElement);
+            });
+
+            addEventListeners();
+        }
+
+        function addEventListeners() {
+            // Кнопка добавления средств
+            document.querySelectorAll('.add-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-id'));
+                    const input = this.previousElementSibling;
+                    const amount = parseFloat(input.value);
+                    
+                    if (amount && amount > 0) {
+                        const goals = getSavedGoals();
+                        goals[index].currentAmount = (goals[index].currentAmount || 0) + amount;
+                        saveGoals(goals);
+                        renderGoals();
+                        input.value = '';
+                    }
+                });
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-id'));
+                    const goals = getSavedGoals();
+                    goals.splice(index, 1);
+                    saveGoals(goals);
+                    renderGoals();
+                });
+            });
+
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-id'));
+                    const goals = getSavedGoals();
+                    const goal = goals[index];
+                    
+                    document.getElementById('goalName').value = goal.name;
+                    document.getElementById('goalAmount').value = goal.amount;
+                    document.getElementById('goalDate').value = goal.rawDate;
+                    document.getElementById('currentAmount').value = goal.currentAmount || 0;
+                    
+                    goals.splice(index, 1);
+                    saveGoals(goals);
+                    renderGoals();
+                });
+            });
+        }
+
+        document.getElementById('goalForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('goalName').value;
+            const amount = parseFloat(document.getElementById('goalAmount').value);
+            const rawDate = document.getElementById('goalDate').value;
+            const date = formatDate(rawDate);
+            const currentAmount = parseFloat(document.getElementById('currentAmount').value) || 0;
+            
+            const goals = getSavedGoals();
+            goals.push({
+                name,
+                amount,
+                date,
+                rawDate,
+                currentAmount
+            });
+            
+            saveGoals(goals);
+            renderGoals();
+            this.reset();
+        });
+
+        document.getElementById('resetGoals').addEventListener('click', function() {
+            if (confirm('Вы уверены, что хотите удалить все цели?')) {
+                localStorage.removeItem('financialGoals');
+                renderGoals();
+            }
+        });
+
+        renderGoals();
+    </script>
+	<script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              console.log('ServiceWorker registration successful');
+            })
+            .catch(err => {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+      }
+    </script>
+</body>
+</html>

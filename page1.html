@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Планировщик бюджета</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- PWA метатеги -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4361ee">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Бюджет">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Планировщик бюджета</h1>
+            <p class="tagline">Контроль расходов и сбережений в одном месте</p>
+        </div>
+    </header>
+    <nav>
+        <a href="index.html" class="active">Главная</a>
+        <a href="stats.html">Статистика</a>
+        <a href="goals.html">Цели</a>
+        <a href="tips.html">Советы</a>
+		<a href="feedback.html">Обратная связь</a>
+    </nav>
+    <main>
+        <section class="intro">
+            <h2>Ваш персональный финансовый помощник</h2>
+            <p>Отслеживайте доходы, расходы и автоматически анализируйте свои привычки.</p>
+        </section>
+        <section class="features">
+            <div class="feature-card">
+                <div class="icon">📊</div>
+                <h3>Автоматическая аналитика</h3>
+                <p>Графики и диаграммы для наглядности.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">💳</div>
+                <h3>Синхронизация с банками</h3>
+                <p>Импорт операций без ручного ввода.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">💰</div>
+                <h3>Экономия до 30%</h3>
+                <p>Помогаем находить скрытые резервы.</p>
+            </div>
+        </section>
+        <section class="quote">
+            <p>«Неважно, сколько вы зарабатываете — важно, как вы распоряжаетесь деньгами.»</p>
+        </section>
+    </main>
+    <footer>
+        <p>© 2025 Планировщик бюджета/ Контакты 8(800)555-55-55</p>
+    </footer>
+	<script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              console.log('ServiceWorker registration successful');
+            })
+            .catch(err => {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+      }
+    </script>
+</body>
+</html>

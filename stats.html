@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Статистика | Планировщик бюджета</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- PWA метатеги -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4361ee">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Бюджет">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Статистика бюджета</h1>
+            <p class="tagline">Анализ ваших доходов и расходов</p>
+        </div>
+    </header>
+    <nav>
+        <a href="page1.html">Главная</a>
+        <a href="stats.html" class="active">Статистика</a>
+        <a href="goals.html">Цели</a>
+        <a href="tips.html">Советы</a>
+		<a href="feedback.html">Обратная связь</a>
+    </nav>
+    <main>
+        <section class="add-expense">
+            <h2>Добавить расход</h2>
+            <form id="expenseForm">
+                <select id="expenseCategory" required>
+                    <option value="">Выберите категорию</option>
+                    <option value="Продукты">Продукты</option>
+                    <option value="Транспорт">Транспорт</option>
+                    <option value="ЖКХ">ЖКХ</option>
+                    <option value="Развлечения">Развлечения</option>
+                    <option value="Одежда">Одежда</option>
+                </select>
+                <input type="number" id="expenseAmount" placeholder="Сумма (руб)" required>
+                <input type="date" id="expenseDate" required>
+                <input type="text" id="expenseDescription" placeholder="Описание (необязательно)">
+                <button type="submit">Добавить</button>
+            </form>
+            <div class="actions-row">
+                <button id="deleteSelected" class="danger-btn">Удалить выделенные</button>
+                <button id="resetData" class="reset-btn">Сбросить все данные</button>
+            </div>
+        </section>
+
+        <section class="chart-section">
+            <h2>График расходов за месяц</h2>
+            <div class="chart-container">
+                <canvas id="expensesChart"></canvas>
+            </div>
+        </section>
+
+        <section class="table-section">
+            <h2>История операций</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th width="40px"></th>
+                        <th>Дата</th>
+                        <th>Категория</th>
+                        <th>Сумма</th>
+                        <th>Описание</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody id="expensesTableBody">
+                </tbody>
+            </table>
+        </section>
+    </main>
+    <footer>
+        <p>© 2025 Планировщик бюджета/ Контакты 8(800)555-55-55</p>
+    </footer>
+
+    <script>
+        function getSavedData() {
+            const savedData = localStorage.getItem('expenseData');
+            return savedData ? JSON.parse(savedData) : {
+                expenses: [],
+                totals: [0, 0, 0, 0, 0]
+            };
+        }
+
+        function saveData(data) {
+            localStorage.setItem('expenseData', JSON.stringify(data));
+        }
+
+        let expenseData = getSavedData();
+        const categories = ['Продукты', 'Транспорт', 'ЖКХ', 'Развлечения', 'Одежда'];
+
+
+        const ctx = document.getElementById('expensesChart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: categories,
+                datasets: [{
+                    label: 'Мои расходы (руб)',
+                    data: expenseData.totals,
+                    backgroundColor: [
+                        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        function loadTableData() {
+            const tableBody = document.getElementById('expensesTableBody');
+            tableBody.innerHTML = '';
+            
+            expenseData.expenses.forEach((expense, index) => {
+                const row = tableBody.insertRow();
+                row.dataset.index = index;
+                if (expense.completed) {
+                    row.classList.add('completed');
+                }
+                
+                row.innerHTML = `
+                    <td><input type="checkbox" class="expense-checkbox" data-index="${index}"></td>
+                    <td>${expense.date}</td>
+                    <td>${expense.category}</td>
+                    <td>${expense.amount.toLocaleString()} ₽</td>
+                    <td>${expense.description || '-'}</td>
+                    <td>
+                        <button class="status-btn ${expense.completed ? 'completed' : ''}" data-index="${index}">
+                            ${expense.completed ? '✓ Выполнено' : 'В процессе'}
+                        </button>
+                    </td>
+                `;
+            });
+            
+            addEventListeners();
+        }
+
+        function addEventListeners() {
+            document.querySelectorAll('.status-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    expenseData.expenses[index].completed = !expenseData.expenses[index].completed;
+                    saveData(expenseData);
+                    loadTableData();
+                    updateChart();
+                });
+            });
+            
+            document.getElementById('deleteSelected').addEventListener('click', function() {
+                const checkboxes = document.querySelectorAll('.expense-checkbox:checked');
+                if (checkboxes.length === 0) {
+                    alert('Выберите хотя бы один элемент для удаления');
+                    return;
+                }
+                
+                if (confirm(`Вы уверены, что хотите удалить ${checkboxes.length} операций?`)) {
+                    Array.from(checkboxes)
+                        .map(cb => parseInt(cb.getAttribute('data-index')))
+                        .sort((a, b) => b - a)
+                        .forEach(index => {
+                            // Вычитаем сумму из общей статистики
+                            const category = expenseData.expenses[index].category;
+                            const categoryIndex = categories.indexOf(category);
+                            if (categoryIndex !== -1) {
+                                expenseData.totals[categoryIndex] -= expenseData.expenses[index].amount;
+                            }
+                            
+                            expenseData.expenses.splice(index, 1);
+                        });
+                    
+                    saveData(expenseData);
+                    loadTableData();
+                    updateChart();
+                }
+            });
+        }
+
+        function updateChart() {
+            const newTotals = [0, 0, 0, 0, 0];
+            
+            expenseData.expenses.forEach(expense => {
+                if (!expense.completed) {
+                    const categoryIndex = categories.indexOf(expense.category);
+                    if (categoryIndex !== -1) {
+                        newTotals[categoryIndex] += expense.amount;
+                    }
+                }
+            });
+            
+            expenseData.totals = newTotals;
+            myChart.data.datasets[0].data = newTotals;
+            myChart.update();
+            saveData(expenseData);
+        }
+
+        document.getElementById('expenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const category = document.getElementById('expenseCategory').value;
+            const amount = parseInt(document.getElementById('expenseAmount').value);
+            const date = formatDate(document.getElementById('expenseDate').value);
+            const description = document.getElementById('expenseDescription').value;
+            
+            const categoryIndex = categories.indexOf(category);
+            expenseData.totals[categoryIndex] += amount;
+            expenseData.expenses.unshift({
+                date,
+                category,
+                amount,
+                description,
+                completed: false
+            });
+            
+            saveData(expenseData);
+            loadTableData();
+            myChart.update();
+            this.reset();
+        });
+
+        document.getElementById('resetData').addEventListener('click', function() {
+            if (confirm('Вы уверены, что хотите удалить все данные о расходах?')) {
+                localStorage.removeItem('expenseData');
+                expenseData = {
+                    expenses: [],
+                    totals: [0, 0, 0, 0, 0]
+                };
+                myChart.update();
+                loadTableData();
+            }
+        });
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}.${month}.${year}`;
+        }
+
+        loadTableData();
+    </script>
+	<script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              console.log('ServiceWorker registration successful');
+            })
+            .catch(err => {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+      }
+    </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Советы | Планировщик бюджета</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- PWA метатеги -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4361ee">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Бюджет">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>Финансовые советы</h1>
+            <p class="tagline">Проверенные методы для экономии и роста доходов</p>
+        </div>
+    </header>
+    <nav>
+        <a href="page1.html">Главная</a>
+        <a href="stats.html">Статистика</a>
+        <a href="goals.html">Цели</a>
+        <a href="tips.html" class="active">Советы</a>
+		<a href="feedback.html">Обратная связь</a>
+    </nav>
+    <main>
+        <section class="advice-container">
+            <div class="advice-card">
+                <div class="advice-icon">💰</div>
+                <h3>Правило 50/30/20</h3>
+                <div class="advice-content">
+                    <p>Распределяйте доходы следующим образом:</p>
+                    <ul>
+                        <li><strong>50%</strong> на necessities (жильё, еда, транспорт)</li>
+                        <li><strong>30%</strong> на wants (развлечения, хобби)</li>
+                        <li><strong>20%</strong> на savings и погашение долгов</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="advice-card">
+                <div class="advice-icon">📈</div>
+                <h3>Инвестируйте рано</h3>
+                <div class="advice-content">
+                    <p>Даже небольшие суммы при долгосрочном инвестировании дают впечатляющие результаты благодаря сложным процентам.</p>
+                    <p class="example">Пример: 1000 ₽/мес под 7% годовых = 520,000 ₽ за 20 лет</p>
+                </div>
+            </div>
+
+            <div class="advice-card">
+                <div class="advice-icon">⏱️</div>
+                <h3>Автоматизируйте сбережения</h3>
+                <div class="advice-content">
+                    <p>Настройте автоматический перевод 10-20% от каждого дохода на отдельный счёт сразу после его поступления.</p>
+                    <p>"Платите сначала себе" - золотое правило финансов.</p>
+                </div>
+            </div>
+
+            <div class="advice-card">
+                <div class="advice-icon">🧾</div>
+                <h3>Отслеживайте расходы</h3>
+                <div class="advice-content">
+                    <p>Записывайте все траты в течение месяца. Вы удивитесь, сколько денег уходит на незаметные мелочи.</p>
+                    <p>Используйте наш <a href="stats.html">раздел статистики</a> для анализа.</p>
+                </div>
+            </div>
+
+            <div class="advice-card">
+                <div class="advice-icon">🛒</div>
+                <h3>Правило 24 часов</h3>
+                <div class="advice-content">
+                    <p>Перед крупной покупкой выжидайте 24 часа. Часто оказывается, что вещь вам не так уж и нужна.</p>
+                    <p>Для онлайн-покупок удаляйте товар из корзины и возвращайтесь на следующий день.</p>
+                </div>
+            </div>
+
+            <div class="advice-card">
+                <div class="advice-icon">🏦</div>
+                <h3>Финансовая подушка</h3>
+                <div class="advice-content">
+                    <p>Создайте "подушку безопасности" - запас в размере 3-6 месячных расходов.</p>
+                    <p>Храните эти деньги на отдельном счёте с возможностью быстрого доступа.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer>
+        <p>© 2025 Планировщик бюджета/ Контакты 8(800)555-55-55</p>
+    </footer>
+	<script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              console.log('ServiceWorker registration successful');
+            })
+            .catch(err => {
+              console.log('ServiceWorker registration failed: ', err);
+            });
+        });
+      }
+    </script>
+</body>
+</html>
