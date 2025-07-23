@@ -2,7 +2,7 @@
   "name": "Планировщик бюджета",
   "short_name": "Бюджет",
   "description": "Контроль расходов и сбережений в одном месте",
-  "start_url": "/page1.html",
+  "start_url": "page1.html",
   "display": "standalone",
   "background_color": "#4361ee",
   "theme_color": "#4361ee",
