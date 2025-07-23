@@ -3,13 +3,13 @@ const ASSETS_TO_CACHE = [
   '/',
   '/page1.html',
   '/stats.html',
-  '/goals.html',
-  '/tips.html',
-  '/feedback.html',
-  '/feedback_error.html',
-  '/feedback_success.html',
-  '/styles.css',
-  '/process_feedback.php',
+  'goals.html',
+  'tips.html',
+  'feedback.html',
+  'feedback_error.html',
+  'feedback_success.html',
+  'styles.css',
+  'process_feedback.php',
   'https://cdn.jsdelivr.net/npm/chart.js'
 ];
 
